@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     }
   if (buf) buf[bufptr]='\0';
   fprintf(stderr,"Bytes out=%u\n",ct*2);
-  if (buf) printf("\nFull String (length=%u):\n%s\n",strlen(buf),buf);
+  if (buf) fprintf(stderr,"Full String (length=%u):\n%s\n",strlen(buf),buf);
   if (buf) free(buf);
   return 0;
 }
