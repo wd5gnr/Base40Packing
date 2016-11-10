@@ -1,0 +1,57 @@
+#include "b40.h"
+
+const char *charset=NULL;
+
+const char *decode(unsigned word)
+{
+  static char buf[4];
+  unsigned int div=1600, i;
+  buf[3]='\0';
+  if (charset==NULL) charset=b40char;
+  for (i=0;i<3;i++)
+    {
+      buf[i]=charset[word/div];
+      word-=(word/div)*div;
+      div=div/40;
+    }
+  return buf;
+}
+
+#ifndef LIBONLY
+#include <stdlib.h>
+#include <string.h>
+
+int main(int argc, char *argv[])
+{
+  char *buf;  // hold entire line
+  unsigned bufsiz=4096;
+  unsigned bufinc=4096;
+  unsigned bufptr=0;
+  unsigned n;
+  unsigned ct=0;
+  buf=malloc(bufinc);
+  if (!buf)
+      fprintf(stderr,"Out of memory\n");
+  while (scanf("%u",&n)==1)
+    {
+      const char *str=decode(n);
+      ct++;
+      printf("(%u)\t%s\n",n,str);
+      if (buf && bufptr>=bufsiz)
+	{
+	  bufsiz+=bufinc;
+	  buf=realloc(buf,bufsiz);
+	  if (!buf)
+	    {
+	      fprintf(stderr,"Out of memory\n");
+	    }
+	}
+      if (buf) strcpy(buf+bufptr,str);
+      bufptr+=3;
+    }
+  fprintf(stderr,"Bytes out=%u\n",ct*2);
+  if (buf) printf("\nFull String:\n%s\n",buf);
+  if (buf) free(buf);
+  return 0;
+}
+#endif
