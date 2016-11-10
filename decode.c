@@ -24,12 +24,12 @@ const char *decode(unsigned word)
 int main(int argc, char *argv[])
 {
   char *buf;  // hold entire line
-  unsigned bufsiz=4096;
-  unsigned bufinc=4096;
+  unsigned bufinc=512;  // must be at least 4, but ought to be more
+  unsigned bufsiz=bufinc;  // start with one chunk
   unsigned bufptr=0;
   unsigned n;
   unsigned ct=0;
-  buf=malloc(bufinc);
+  buf=malloc(bufsiz);  // alocate first chunk
   if (!buf)
       fprintf(stderr,"Out of memory\n");
   while (scanf("%u",&n)==1)
@@ -37,20 +37,21 @@ int main(int argc, char *argv[])
       const char *str=decode(n);
       ct++;
       printf("(%u)\t%s\n",n,str);
-      if (buf && bufptr>=bufsiz)
+      if (buf && bufptr+4>=bufsiz)
 	{
-	  bufsiz+=bufinc;
+	  bufsiz+=bufinc;   // if out of space, make more
 	  buf=realloc(buf,bufsiz);
 	  if (!buf)
 	    {
 	      fprintf(stderr,"Out of memory\n");
-	    }
+	    } 
 	}
       if (buf) strcpy(buf+bufptr,str);
       bufptr+=3;
     }
+  if (buf) buf[bufptr]='\0';
   fprintf(stderr,"Bytes out=%u\n",ct*2);
-  if (buf) printf("\nFull String:\n%s\n",buf);
+  if (buf) printf("\nFull String (length=%u):\n%s\n",strlen(buf),buf);
   if (buf) free(buf);
   return 0;
 }
